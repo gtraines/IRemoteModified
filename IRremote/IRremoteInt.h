@@ -9,11 +9,10 @@
  * Also influenced by http://zovirl.com/2008/11/12/building-a-universal-remote-with-an-arduino/
  */
 
-#ifndef IRremoteint_h
-#define IRremoteint_h
+#define IRremoteInt_h
+#ifndef IRremoteInt_h
 
-//#include <WProgram.h>
-#include <arduino.h>
+#include <Arduino.h>
 
 #define CLKFUDGE 5      // fudge factor for clock interrupt overhead
 #define CLK 256      // max value for clock (timer 2)
