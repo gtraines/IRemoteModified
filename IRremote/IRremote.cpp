@@ -369,6 +369,7 @@ int IRrecv::decode(decode_results *results) {
 	// decodeHash returns a hash on any input.
 	// Thus, it needs to be last in the list.
 	// If you add any decodes, add them before this.
+    if (decodeSony(results))  return true ;
 	if (decodeHash(results))  return true ;
 
 	// Throw away and start over
@@ -378,6 +379,35 @@ int IRrecv::decode(decode_results *results) {
   // Throw away and start over
   resume();
   return ERR;
+}
+
+//+=============================================================================
+// Use FNV hash algorithm: http://isthe.com/chongo/tech/comp/fnv/#FNV-param
+// Converts the raw code values into a 32-bit hash code.
+// Hopefully this code is unique for each button.
+// This isn't a "real" decoding, just an arbitrary value.
+//
+#define FNV_PRIME_32 16777619
+#define FNV_BASIS_32 2166136261
+
+long  IRrecv::decodeHash (decode_results *results)
+{
+    long  hash = FNV_BASIS_32;
+
+    // Require at least 6 samples to prevent triggering on noise
+    if (results->rawlen < 6)  return false ;
+
+    for (int i = 1;  (i + 2) < results->rawlen;  i++) {
+        int value =  compare(results->rawbuf[i], results->rawbuf[i+2]);
+        // Add value into the hash
+        hash = (hash * FNV_PRIME_32) ^ value;
+    }
+
+    results->value       = hash;
+    results->bits        = 32;
+    results->decode_type = UNKNOWN;
+
+    return true;
 }
 
 long IRrecv::decodeSony(decode_results *results) {

@@ -1,17 +1,23 @@
+#include "IrReceiver.h"
+#include "boarddefs.h"
+#include "IRremoteInt.h"
 
-IRrecv::IRrecv(int recvpin): irparams()
+#include "CppList.h"
+CppList lst_of_irparams;
+
+IrReceiver::IrReceiver(int recvpin): irparams()
 {
   irparams.recvpin = recvpin;
   irparams.blinkflag = 0;
   lst_of_irparams.Add(&irparams); 
 }
 
-IRrecv::~IRrecv()
+IrReceiver::~IrReceiver()
 {
 	lst_of_irparams.Delete(&irparams);
 }
 
-void IRrecv::enableIRIn() {
+void IrReceiver::enableIRIn() {
   // setup pulse clock timer interrupt
   TCCR2A = 0;  // normal mode
 
@@ -39,7 +45,7 @@ void IRrecv::enableIRIn() {
 }
 
 // enable/disable blinking of pin 13 on IR processing
-void IRrecv::blink13(int blinkflag)
+void IrReceiver::blink13(int blinkflag)
 {
   irparams.blinkflag = blinkflag;
   if (blinkflag)
@@ -131,7 +137,7 @@ ISR(TIMER2_OVF_vect)
   //*/
 }
 
-void IRrecv::resume() {
+void IrReceiver::resume() {
   irparams.rcvstate = STATE_IDLE;
   irparams.rawlen = 0;
 }
@@ -141,7 +147,7 @@ void IRrecv::resume() {
 // Decodes the received IR message
 // Returns 0 if no data ready, 1 if data ready.
 // Results of decoding are stored in results
-int IRrecv::decode(decode_results *results) {
+int IrReceiver::decode(decode_results *results) {
 	  results->rawbuf = irparams.rawbuf;
 	  results->rawlen = irparams.rawlen;
 	  if (irparams.rcvstate != STATE_STOP) {
@@ -169,7 +175,7 @@ int IRrecv::decode(decode_results *results) {
 #define FNV_PRIME_32 16777619
 #define FNV_BASIS_32 2166136261
 
-long  IRrecv::decodeHash (decode_results *results)
+long IrReceiver::decodeHash (decode_results *results)
 {
 	long  hash = FNV_BASIS_32;
 
@@ -188,7 +194,8 @@ long  IRrecv::decodeHash (decode_results *results)
 
 	return true;
 }
-long IRrecv::decodeSony(decode_results *results) {
+
+long IrReceiver::decodeSony(decode_results *results) {
   long data = 0;
   if (irparams.rawlen < 2 * SONY_BITS + 2) {
     return ERR;
@@ -235,7 +242,7 @@ long IRrecv::decodeSony(decode_results *results) {
 // offset and used are updated to keep track of the current position.
 // t1 is the time interval for a single bit in microseconds.
 // Returns -1 for error (measured time interval is not a multiple of t1).
-int IRrecv::getRClevel(decode_results *results, int *offset, int *used, int t1) {
+int IrReceiver::getRClevel(decode_results *results, int *offset, int *used, int t1) {
   if (*offset >= results->rawlen) {
     // After end of recorded buffer, assume SPACE.
     return SPACE;
@@ -273,4 +280,3 @@ int IRrecv::getRClevel(decode_results *results, int *offset, int *used, int t1) 
 #endif
   return val;   
 }
-
