@@ -15,9 +15,6 @@
 // Provides ISR
 #include <avr/interrupt.h>
 
-// Neco: moved irparams into private instance members
-//volatile irparams_t irparams;
-// Neco: adding global variable - list of irparams_t to go thru in interruption cycle
 #include "CppList.h"
 CppList lst_of_irparams;
 
