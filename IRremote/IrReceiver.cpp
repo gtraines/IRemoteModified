@@ -1,6 +1,6 @@
+#include "IRremoteInt.h"
 #include "IrReceiver.h"
 #include "boarddefs.h"
-#include "IRremoteInt.h"
 #include <avr/interrupt.h>
 #include <CppList.h>
 
@@ -133,14 +133,36 @@ ISR(TIMER2_OVF_vect)
 	  ProcessOneIRParam(*irparams);
   }
   //*/
-}
+};
 
 void IrReceiver::resume() {
   irparams.rcvstate = STATE_IDLE;
   irparams.rawlen = 0;
 }
 
-
+//+=============================================================================
+// hashdecode - decode an arbitrary IR code.
+// Instead of decoding using a standard encoding scheme
+// (e.g. Sony, NEC, RC5), the code is hashed to a 32-bit value.
+//
+// The algorithm: look at the sequence of MARK signals, and see if each one
+// is shorter (0), the same length (1), or longer (2) than the previous.
+// Do the same with the SPACE signals.  Hash the resulting sequence of 0's,
+// 1's, and 2's to a 32-bit value.  This will give a unique value for each
+// different code (probably), for most code systems.
+//
+// http://arcfn.com/2010/01/using-arbitrary-remotes-with-arduino.html
+//
+// Compare two tick values, returning 0 if newval is shorter,
+// 1 if newval is equal, and 2 if newval is longer
+// Use a tolerance of 20%
+//
+int  IrReceiver::compare (unsigned int oldval,  unsigned int newval)
+{
+    if      (newval < oldval * .8)  return 0 ;
+    else if (oldval < newval * .8)  return 2 ;
+    else                            return 1 ;
+}
 
 // Decodes the received IR message
 // Returns 0 if no data ready, 1 if data ready.

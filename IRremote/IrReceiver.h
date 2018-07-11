@@ -1,8 +1,9 @@
+#include <Arduino.h>
+#include "IRremoteInt.h"
+#include "IRremote.h"
+
 #ifndef IrReceiver_h
 #define IrReceiver_h
-
-#include "IRremote.h"
-#include <Arduino.h>
 
 class IrReceiver {
 public:
@@ -14,6 +15,7 @@ public:
     void resume();
 private:
     irparams_t irparams;
+    int compare (unsigned int oldval,  unsigned int newval);
     long decodeHash (decode_results *results);
     long decodeSony(decode_results *results);
     int getRClevel(decode_results *results, int *offset, int *used, int t1);
