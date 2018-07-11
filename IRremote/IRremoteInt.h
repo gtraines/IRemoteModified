@@ -9,8 +9,10 @@
  * Also influenced by http://zovirl.com/2008/11/12/building-a-universal-remote-with-an-arduino/
  */
 
-#define IRremoteInt_h
+
+
 #ifndef IRremoteInt_h
+#define IRremoteInt_h
 
 #include <Arduino.h>
 
